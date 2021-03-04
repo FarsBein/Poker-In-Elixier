@@ -2,7 +2,7 @@ defmodule Poker do
 
   def deal(cards) do translate(cards) end
   defp deal([], hand1, hand2, pool) do
-    compare(hand1 ++ pool, hand2 ++ pool)
+    compare(Enum.sort(hand1 ++ pool), Enum.sort(hand2 ++ pool))
   end
   defp deal([head | tail], hand1, hand2, _) do
     if length(hand1) < 1 do
@@ -67,6 +67,9 @@ defmodule Poker do
   def checkSuit(hand) do
     condition = checkSuit(hand, (tl (hd hand)))
     if condition do
+      IO.inspect hand
+      royalFlush(hand)
+      # strightFlush(hand)
       [1,3,1] #next fun that handles suit should be here
     else
       [hand,3,(hd (hd hand))] #next fun that handles non-suit should be here
@@ -80,5 +83,10 @@ defmodule Poker do
     end
   end
   defp checkSuit([],_) do true end
-  
+
+  def royalFlush([[1, _], _, _, [10, _], [11, _], [12, _], [13, _]]) do IO.puts "Royal Flush" end
+  def royalFlush(hand) do IO.puts "Not Royal Flush" end
+
+  # def strightFlush(hand) do IO.puts "Stright Flush" end
+  # def strightFlush(hand) do IO.puts "Not Stright Flush" end
 end

@@ -16,10 +16,17 @@ defmodule Testing do
   #   IO.inspect c
   # end
 
-  def caseTest() do
-    case 5 do
-      x >= 5 -> "bigger than 5"
-      _ -> "smaller than 5"
-    end
+  # def caseTest() do
+  #   case 5 do
+  #     x >= 5 -> "bigger than 5"
+  #     _ -> "smaller than 5"
+  #   end
+  # end
+
+  def aTestMatch() do
+      bTestMatch([1,2,3,4,5])
+  end
+  def bTestMatch([1,_,5]) do
+    
   end
 end
