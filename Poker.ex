@@ -72,6 +72,8 @@ defmodule Poker do
       straightFlush(hand)
       [1,3,1] #next fun that handles suit should be here
     else
+      IO.inspect hand
+      fourOfKind(hand)
       [hand,3,(hd (hd hand))] #next fun that handles non-suit should be here
     end
   end
@@ -97,5 +99,9 @@ defmodule Poker do
     end
   end
 
-
+  def fourOfKind([[c, _], [c, _], [c, _], [c, _],_,_,_]) do IO.puts "Four of a kind" end
+  def fourOfKind([_,[c, _], [c, _], [c, _], [c, _],_,_]) do IO.puts "Four of a kind" end
+  def fourOfKind([_,_,[c, _], [c, _], [c, _], [c, _],_]) do IO.puts "Four of a kind" end
+  def fourOfKind([_,_,_,[c, _], [c, _], [c, _], [c, _]]) do IO.puts "Four of a kind" end
+  def fourOfKind(_) do IO.puts "Not Four of a kind" end
 end
