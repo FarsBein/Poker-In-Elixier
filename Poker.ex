@@ -69,7 +69,7 @@ defmodule Poker do
     if condition do
       IO.inspect hand
       royalFlush(hand)
-      # strightFlush(hand)
+      straightFlush(hand)
       [1,3,1] #next fun that handles suit should be here
     else
       [hand,3,(hd (hd hand))] #next fun that handles non-suit should be here
@@ -85,8 +85,17 @@ defmodule Poker do
   defp checkSuit([],_) do true end
 
   def royalFlush([[1, _], _, _, [10, _], [11, _], [12, _], [13, _]]) do IO.puts "Royal Flush" end
-  def royalFlush(hand) do IO.puts "Not Royal Flush" end
+  def royalFlush(_) do IO.puts "Not Royal Flush" end
 
-  # def strightFlush(hand) do IO.puts "Stright Flush" end
-  # def strightFlush(hand) do IO.puts "Not Stright Flush" end
+  def straightFlush([h|t]) do straightFlush(t, h, 0) end
+  def straightFlush(_, _, 5) do IO.puts "Straight Flush"  end
+  def straightFlush([], _, _) do IO.puts "Not Straight Flush" end
+  def straightFlush([h|t], c, count) do
+    case (hd h) == ((hd c)+1) do
+      true -> straightFlush(t, h, count+1)
+      _ -> straightFlush(t, h, 0)
+    end
+  end
+
+
 end

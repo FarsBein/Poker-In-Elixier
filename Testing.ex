@@ -26,7 +26,10 @@ defmodule Testing do
   def aTestMatch() do
       bTestMatch([1,2,3,4,5])
   end
-  def bTestMatch([1,_,5]) do
-    
+  def bTestMatch([n,n+1,n+2,n+3,n+4]) do
+      "in seq"
   end
+  def bTestMatch(_) do
+    "Not in seq"
+end
 end
