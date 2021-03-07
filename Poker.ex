@@ -41,6 +41,12 @@ defmodule Poker do
     valuesOnly(tail,finalCards ++ [ (hd head) ])
   end
 
+  def countUniq(cards) do
+    cardsV = valuesOnly(cards)
+    reducedHand = Enum.reduce(cardsV, %{}, fn(key, dic) -> Map.update(dic, key, 1, &(&1 + 1)) end)
+    Enum.filter(reducedHand, fn x -> x end)
+  end
+
   def compare(handPool1, handPool2) do
     [hand1, hand1rank, tieBreaker1] = checkSuit handPool1
     [hand2, hand2rank, tieBreaker2] = checkSuit handPool2
@@ -83,7 +89,8 @@ defmodule Poker do
       # fourOfKind(hand)
       # fullHouse(hand)
       # straight(hand)
-      threeOfKind(hand)
+      # threeOfKind(hand)
+      twoPairs(hand)
       [hand,3,(hd (hd hand))] #next fun that handles non-suit should be here
     end
   end
@@ -116,10 +123,7 @@ defmodule Poker do
   def fourOfKind(_) do IO.puts "Not Four of a kind" end
 
   def fullHouse(hand) do
-    handV = valuesOnly(hand)
-    reducedHand = Enum.reduce(handV, %{}, fn(key, dic) -> Map.update(dic, key, 1, &(&1 + 1)) end)
-    reducedHandList = Enum.filter(reducedHand, fn x -> x end)
-    fullHouse(reducedHandList, false, false)
+    fullHouse(countUniq(hand), false, false)
   end
   def fullHouse([], passTriple, passPair) do
     if (passTriple and passPair) do
@@ -157,12 +161,7 @@ defmodule Poker do
     end
   end
 
-  def threeOfKind(hand) do
-    handV = valuesOnly(hand)
-    reducedHand = Enum.reduce(handV, %{}, fn(key, dic) -> Map.update(dic, key, 1, &(&1 + 1)) end)
-    reducedHandList = Enum.filter(reducedHand, fn x -> x end)
-    threeOfKind(reducedHandList, false)
-  end
+  def threeOfKind(hand) do threeOfKind(countUniq(hand), false) end
   def threeOfKind(_, true) do IO.puts "Three of a Kind" end
   def threeOfKind([], _) do IO.puts "Not Three of a Kind" end
   def threeOfKind([head|tail], passTriple) do
@@ -171,6 +170,19 @@ defmodule Poker do
       threeOfKind(tail, true)
     else
       threeOfKind(tail, passTriple)
+    end
+  end
+
+  def twoPairs(hand) do twoPairs(countUniq(hand), 0) end
+  def twoPairs(_, 2) do IO.puts "Two Pairs" end
+  def twoPairs([], 1) do IO.puts "One Pair" end
+  def twoPairs([], 0) do IO.puts "No Pairs" end
+  def twoPairs([head|tail], numPairs) do
+    {_, count} = head
+    if count == 2 do
+      twoPairs(tail, numPairs+1)
+    else
+      twoPairs(tail, numPairs)
     end
   end
 end
