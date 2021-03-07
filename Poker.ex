@@ -76,6 +76,8 @@ defmodule Poker do
 
   end
 
+  # checker ---------------------------------------------
+
   def checkSuit(hand) do
     IO.inspect hand
     condition = checkSuit(hand, (tl (hd hand)))
@@ -90,7 +92,8 @@ defmodule Poker do
       # fullHouse(hand)
       # straight(hand)
       # threeOfKind(hand)
-      twoPairs(hand)
+      # pairs(hand)
+      highCards(hand)
       [hand,3,(hd (hd hand))] #next fun that handles non-suit should be here
     end
   end
@@ -173,16 +176,21 @@ defmodule Poker do
     end
   end
 
-  def twoPairs(hand) do twoPairs(countUniq(hand), 0) end
-  def twoPairs(_, 2) do IO.puts "Two Pairs" end
-  def twoPairs([], 1) do IO.puts "One Pair" end
-  def twoPairs([], 0) do IO.puts "No Pairs" end
-  def twoPairs([head|tail], numPairs) do
+  def pairs(hand) do pairs(countUniq(hand), 0) end
+  def pairs(_, 2) do IO.puts "Two Pairs" end
+  def pairs([], 1) do IO.puts "One Pair" end
+  def pairs([], 0) do IO.puts "No Pairs" end
+  def pairs([head|tail], numPairs) do
     {_, count} = head
     if count == 2 do
-      twoPairs(tail, numPairs+1)
+      pairs(tail, numPairs+1)
     else
-      twoPairs(tail, numPairs)
+      pairs(tail, numPairs)
     end
+  end
+
+  def highCards(hand) do
+    [_,_,c5,c4,c3,c2,c1] = hand
+    IO.inspect [c5,c4,c3,c2,c1]
   end
 end
