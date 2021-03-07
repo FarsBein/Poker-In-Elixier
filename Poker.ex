@@ -82,7 +82,8 @@ defmodule Poker do
     else
       # fourOfKind(hand)
       # fullHouse(hand)
-      straight(hand)
+      # straight(hand)
+      threeOfKind(hand)
       [hand,3,(hd (hd hand))] #next fun that handles non-suit should be here
     end
   end
@@ -98,7 +99,7 @@ defmodule Poker do
   def royalFlush([[1, _], _, _, [10, _], [11, _], [12, _], [13, _]]) do IO.puts "Royal Flush" end
   def royalFlush(_) do IO.puts "Not Royal Flush" end
 
-  def straightFlush([h|t]) do straightFlush(t, h, 0) end
+  def straightFlush([h|t]) do straightFlush(t, h, 1) end
   def straightFlush(_, _, 5) do IO.puts "Straight Flush"  end
   def straightFlush([], _, _) do IO.puts "Not Straight Flush" end
   def straightFlush([h|t], c, count) do
@@ -153,6 +154,23 @@ defmodule Poker do
     case (hd head) == ((hd rightNum)+1) do
       true -> straight(t, head, count+1)
       _ -> straight(t, rightNum, count)
+    end
+  end
+
+  def threeOfKind(hand) do
+    handV = valuesOnly(hand)
+    reducedHand = Enum.reduce(handV, %{}, fn(key, dic) -> Map.update(dic, key, 1, &(&1 + 1)) end)
+    reducedHandList = Enum.filter(reducedHand, fn x -> x end)
+    threeOfKind(reducedHandList, false)
+  end
+  def threeOfKind(_, true) do IO.puts "Three of a Kind" end
+  def threeOfKind([], _) do IO.puts "Not Three of a Kind" end
+  def threeOfKind([head|tail], passTriple) do
+    {_, count} = head
+    if count == 3 do
+      threeOfKind(tail, true)
+    else
+      threeOfKind(tail, passTriple)
     end
   end
 end
