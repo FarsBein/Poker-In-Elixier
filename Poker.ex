@@ -72,10 +72,12 @@ defmodule Poker do
 
   def checkSuit(hand) do
     condition = checkSuit(hand, (tl (hd hand)))
+    IO.puts condition
     if condition do
       IO.inspect hand
       # royalFlush(hand)
       # straightFlush(hand)
+      flush(hand)
       [1,3,1] #next fun that handles suit should be here
     else
       IO.inspect hand
@@ -138,4 +140,8 @@ defmodule Poker do
     end
   end
 
+  def flush([[_, s], [_, s], [_, s], [_, s],[_, s],_,_]) do IO.puts "flush" end
+  def flush([_,[_, s], [_, s], [_, s], [_, s],[_, s],_]) do IO.puts "flush" end
+  def flush([_,_,[_, s], [_, s], [_, s], [_, s],[_, s]]) do IO.puts "flush" end
+  def flush(_) do IO.puts "Not flush" end
 end
