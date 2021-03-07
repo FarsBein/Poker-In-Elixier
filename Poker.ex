@@ -35,6 +35,12 @@ defmodule Poker do
       end
   end
 
+  def valuesOnly(cards) do valuesOnly(cards,[]) end
+  def valuesOnly([],finalCards) do finalCards end
+  def valuesOnly([head|tail],finalCards) do
+    valuesOnly(tail,finalCards ++ [ (hd head) ])
+  end
+
   def compare(handPool1, handPool2) do
     [hand1, hand1rank, tieBreaker1] = checkSuit handPool1
     [hand2, hand2rank, tieBreaker2] = checkSuit handPool2
@@ -68,12 +74,13 @@ defmodule Poker do
     condition = checkSuit(hand, (tl (hd hand)))
     if condition do
       IO.inspect hand
-      royalFlush(hand)
-      straightFlush(hand)
+      # royalFlush(hand)
+      # straightFlush(hand)
       [1,3,1] #next fun that handles suit should be here
     else
       IO.inspect hand
-      fourOfKind(hand)
+      # fourOfKind(hand)
+      fullHouse(hand)
       [hand,3,(hd (hd hand))] #next fun that handles non-suit should be here
     end
   end
@@ -104,4 +111,31 @@ defmodule Poker do
   def fourOfKind([_,_,[c, _], [c, _], [c, _], [c, _],_]) do IO.puts "Four of a kind" end
   def fourOfKind([_,_,_,[c, _], [c, _], [c, _], [c, _]]) do IO.puts "Four of a kind" end
   def fourOfKind(_) do IO.puts "Not Four of a kind" end
+
+  def fullHouse(hand) do
+    handV = valuesOnly(hand)
+    reducedHand = Enum.reduce(handV, %{}, fn(key, dic) -> Map.update(dic, key, 1, &(&1 + 1)) end)
+    reducedHandList = Enum.filter(reducedHand, fn x -> x end)
+    fullHouse(reducedHandList, false, false)
+  end
+  def fullHouse([], passTriple, passPair) do
+    if (passTriple and passPair) do
+      IO.puts "Full House"
+    else
+      IO.puts "Not Full House"
+    end
+  end
+  def fullHouse([head|tail], passTriple, passPair) do
+    {_, count} = head
+    if count == 3 do
+      fullHouse(tail, true, passPair)
+    end
+    if count == 2 do
+      fullHouse(tail, passTriple, true)
+    end
+    if count != 3 and count != 2  do
+      fullHouse(tail, passTriple, passPair)
+    end
+  end
+
 end
