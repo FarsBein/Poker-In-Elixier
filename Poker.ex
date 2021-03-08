@@ -41,7 +41,7 @@ defmodule Poker do
     valuesOnly(tail,finalCards ++ [ (hd head) ])
   end
 
-  def countUniq(cards) do
+  def countUniqe(cards) do
     cardsV = valuesOnly(cards)
     reducedHand = Enum.reduce(cardsV, %{}, fn(key, dic) -> Map.update(dic, key, 1, &(&1 + 1)) end)
     Enum.filter(reducedHand, fn x -> x end)
@@ -51,12 +51,12 @@ defmodule Poker do
     [hand1, hand1rank, tieBreaker1] = checkSuit handPool1
     [hand2, hand2rank, tieBreaker2] = checkSuit handPool2
 
-    if hand1rank > hand2rank do
+    if hand1rank < hand2rank do
       IO.inspect hand1
       IO.inspect hand1rank
     end
 
-    if hand1rank < hand2rank do
+    if hand1rank > hand2rank do
       IO.inspect hand2
       IO.inspect hand2rank
     end
@@ -79,22 +79,35 @@ defmodule Poker do
   # checker ---------------------------------------------
 
   def checkSuit(hand) do
-    IO.inspect hand
-    condition = checkSuit(hand, (tl (hd hand)))
-    IO.puts condition
-    if condition do
-      # royalFlush(hand)
-      # straightFlush(hand)
-      flush(hand)
-      [1,3,1] #next fun that handles suit should be here
+    # IO.inspect hand
+    allSuitSame = checkSuit(hand, (tl (hd hand)))
+    if allSuitSame do
+      royalFlush = royalFlush(hand)
+      straightFlush = straightFlush(hand)
+      # flush = flush(hand)
+      cond do
+        (royalFlush != [0,0,0]) -> royalFlush
+        (straightFlush != [0,0,0]) -> straightFlush
+        (flush != [0,0,0]) -> flush
+        true -> [0,11,0]
+      end
     else
-      # fourOfKind(hand)
-      # fullHouse(hand)
-      # straight(hand)
-      # threeOfKind(hand)
-      # pairs(hand)
-      highCards(hand)
-      [hand,3,(hd (hd hand))] #next fun that handles non-suit should be here
+      IO.inspect(hand)
+      fourOfKind = fourOfKind(hand)
+      fullHouse = fullHouse(hand)
+      # straight = straight(hand)
+      # threeOfKind = threeOfKind(hand)
+      # pairs = pairs(hand)
+      # highCards = highCards(hand)
+      cond do
+        (fourOfKind != [0,0,0]) -> fourOfKind
+        (fullHouse != [0,0,0]) -> fullHouse
+        # (fullHouse != [0,0,0]) -> straight
+        # (fullHouse != [0,0,0]) -> threeOfKind
+        # (fullHouse != [0,0,0]) -> pairs
+        # (fullHouse != [0,0,0]) -> highCards
+        true -> [0,11,0]
+      end
     end
   end
   defp checkSuit([h | t], suit) do
@@ -106,52 +119,51 @@ defmodule Poker do
   end
   defp checkSuit([],_) do true end
 
-  def royalFlush([[1, _], _, _, [10, _], [11, _], [12, _], [13, _]]) do IO.puts "Royal Flush" end
-  def royalFlush(_) do IO.puts "Not Royal Flush" end
+  def royalFlush([[1, s], _, _, [10, s], [11, s], [12, s], [13, s]]) do [[[10, s], [11, s], [12, s], [13, s], [1, s]],1,0] end
+  def royalFlush(_) do [0,0,0] end
 
-  def straightFlush([h|t]) do straightFlush(t, h, 1) end
-  def straightFlush(_, _, 5) do IO.puts "Straight Flush"  end
-  def straightFlush([], _, _) do IO.puts "Not Straight Flush" end
-  def straightFlush([h|t], c, count) do
+  def straightFlush([h|t]) do straightFlush(t, h, 1, [h]) end
+  def straightFlush(_, _, 5, finalHand) do [finalHand,2,(hd (tl finalHand))] end
+  def straightFlush([],_,_,_) do [0,0,0] end
+  def straightFlush([h|t], c, count,finalHand) do
     case (hd h) == ((hd c)+1) do
-      true -> straightFlush(t, h, count+1)
-      _ -> straightFlush(t, h, 0)
+      true -> straightFlush(t, h, count+1, finalHand ++ [h])
+      _ -> straightFlush(t, h, 0, [])
     end
   end
 
-  def fourOfKind([[c, _], [c, _], [c, _], [c, _],_,_,_]) do IO.puts "Four of a kind" end
-  def fourOfKind([_,[c, _], [c, _], [c, _], [c, _],_,_]) do IO.puts "Four of a kind" end
-  def fourOfKind([_,_,[c, _], [c, _], [c, _], [c, _],_]) do IO.puts "Four of a kind" end
-  def fourOfKind([_,_,_,[c, _], [c, _], [c, _], [c, _]]) do IO.puts "Four of a kind" end
-  def fourOfKind(_) do IO.puts "Not Four of a kind" end
+  def fourOfKind([[c, s1], [c, s2], [c, s3], [c, s4],_,_,c5]) do [[[c, s1], [c, s2], [c, s3], [c, s4],c5],3,(hd c5)] end
+  def fourOfKind([_,[c, s1], [c, s2], [c, s3], [c, s4],_,c5]) do [[[c, s1], [c, s2], [c, s3], [c, s4],c5],3,(hd c5)] end
+  def fourOfKind([_,_,[c, s1], [c, s2], [c, s3], [c, s4],c5]) do [[[c, s1], [c, s2], [c, s3], [c, s4],c5],3,(hd c5)] end
+  def fourOfKind([_,_,c5,[c, s1], [c, s2], [c, s3], [c, s4]]) do [[[c, s1], [c, s2], [c, s3], [c, s4],c5],3,(hd c5)] end
+  def fourOfKind(_) do [0,0,0] end
 
-  def fullHouse(hand) do
-    fullHouse(countUniq(hand), false, false)
-  end
-  def fullHouse([], passTriple, passPair) do
-    if (passTriple and passPair) do
-      IO.puts "Full House"
+  def fullHouse([h|t]) do fullHouse(t++[[0,0]], [h], [], []) end
+  def fullHouse([], _, triple, pair) do
+    unless (triple == [] or pair == []) do
+      t1 = (hd Enum.reverse(triple))
+      p1 = (hd pair)
+      p2 =  (hd (tl pair))
+      [triple ++ [p1,p2], 4, (hd t1)] # add the pair tie breaker
     else
-      IO.puts "Not Full House"
+      [0,0,0]
     end
   end
-  def fullHouse([head|tail], passTriple, passPair) do
-    {_, count} = head
-    if count == 3 do
-      fullHouse(tail, true, passPair)
-    end
-    if count == 2 do
-      fullHouse(tail, passTriple, true)
-    end
-    if count != 3 and count != 2  do
-      fullHouse(tail, passTriple, passPair)
+  def fullHouse(hand, tempList, triple, pair) do
+    cardTemp = hd (hd tempList)
+    card = (hd hand)
+    cond do
+      (hd card) == cardTemp -> fullHouse((tl hand), tempList ++ [card] , triple, pair)
+      length(tempList) == 3 -> fullHouse((tl hand), [card], triple ++ tempList, pair)
+      length(tempList) == 2 -> fullHouse((tl hand), [card], triple ,  tempList ++ pair )
+      true -> fullHouse((tl hand), [card], triple, pair)
     end
   end
 
-  def flush([[_, s], [_, s], [_, s], [_, s],[_, s],_,_]) do IO.puts "flush" end
-  def flush([_,[_, s], [_, s], [_, s], [_, s],[_, s],_]) do IO.puts "flush" end
-  def flush([_,_,[_, s], [_, s], [_, s], [_, s],[_, s]]) do IO.puts "flush" end
-  def flush(_) do IO.puts "Not flush" end
+  def flush([[c1, s], [c2, s], [c3, s], [c4, s],[c5, s],_,_]) do [[c1, s], [c2, s], [c3, s], [c4, s],[c5, s]] end
+  def flush([_,[c1, s], [c2, s], [c3, s], [c4, s],[c5, s],_]) do [[c1, s], [c2, s], [c3, s], [c4, s],[c5, s]] end
+  def flush([_,_,[c1, s], [c2, s], [c3, s], [c4, s],[c5, s]]) do [[c1, s], [c2, s], [c3, s], [c4, s],[c5, s]] end
+  def flush(_) do [0,0,0] end
 
   # merge with straight flush and rename it as sequence
   def straight([h|t]) do straight(t, h, 1) end
@@ -164,7 +176,7 @@ defmodule Poker do
     end
   end
 
-  def threeOfKind(hand) do threeOfKind(countUniq(hand), false) end
+  def threeOfKind(hand) do threeOfKind(countUniqe(hand), false) end
   def threeOfKind(_, true) do IO.puts "Three of a Kind" end
   def threeOfKind([], _) do IO.puts "Not Three of a Kind" end
   def threeOfKind([head|tail], passTriple) do
@@ -176,7 +188,7 @@ defmodule Poker do
     end
   end
 
-  def pairs(hand) do pairs(countUniq(hand), 0) end
+  def pairs(hand) do pairs(countUniqe(hand), 0) end
   def pairs(_, 2) do IO.puts "Two Pairs" end
   def pairs([], 1) do IO.puts "One Pair" end
   def pairs([], 0) do IO.puts "No Pairs" end
