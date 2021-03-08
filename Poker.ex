@@ -82,9 +82,10 @@ defmodule Poker do
     # IO.inspect hand
     allSuitSame = checkSuit(hand, (tl (hd hand)))
     if allSuitSame do
+      IO.inspect(hand)
       royalFlush = royalFlush(hand)
       straightFlush = straightFlush(hand)
-      # flush = flush(hand)
+      flush = flush(hand)
       cond do
         (royalFlush != [0,0,0]) -> royalFlush
         (straightFlush != [0,0,0]) -> straightFlush
